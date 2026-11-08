@@ -1,0 +1,1 @@
+"""YottaPay AI – exceptions package"""
