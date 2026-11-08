@@ -163,11 +163,21 @@ The API is now available at `http://localhost:8001`:
 
 ```bash
 cd ../frontend
-pnpm install    # or: npm install
-pnpm run dev    # or: npm run dev
+npm install     # or: pnpm install
+npm run dev     # or: pnpm run dev
 ```
 
 Frontend runs at `http://localhost:5174` and proxies `/api` to the backend.
+
+### 10. Vercel Deployment (Live Web Preview)
+
+The repository is configured for 1-click deployment on [Vercel](https://vercel.com):
+- **Framework Preset:** Vite
+- **Root Directory:** `./` (or `frontend`)
+- **Build Command:** `npm run build`
+- **Output Directory:** `frontend/dist` (or `dist` if Root is `frontend`)
+- **SPA Rewrites:** Pre-configured via `vercel.json` to prevent 404s on route refresh.
+- **Offline / Preview Mode:** Built-in demo fallback automatically provides realistic synthetic data when reviewing without a connected MySQL instance.
 
 ---
 

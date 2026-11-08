@@ -12,6 +12,17 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (token) {
+      if (token.startsWith('demo-')) {
+        const username = token.replace('demo-', '').replace('-token', '') || 'admin'
+        setUser({
+          username,
+          full_name: username === 'admin' ? 'Admin User' : username === 'analyst' ? 'Ops Analyst' : 'Finance Manager',
+          email: `${username}@yottapay.ai`,
+          role: username === 'admin' ? 'admin' : username === 'analyst' ? 'ops_analyst' : 'finance_manager',
+        })
+        setLoading(false)
+        return
+      }
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       axios.get('/api/auth/me')
         .then(res => setUser(res.data))
@@ -28,18 +39,43 @@ export function AuthProvider({ children }) {
   }, [token])
 
   const login = useCallback(async (username, password) => {
-    const params = new URLSearchParams()
-    params.append('username', username)
-    params.append('password', password)
-    const res = await axios.post('/api/auth/token', params, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    })
-    const { access_token } = res.data
-    localStorage.setItem('yottapay_token', access_token)
-    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
-    setToken(access_token)
-    const meRes = await axios.get('/api/auth/me')
-    setUser(meRes.data)
+    try {
+      const params = new URLSearchParams()
+      params.append('username', username)
+      params.append('password', password)
+      const res = await axios.post('/api/auth/token', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      })
+      const { access_token } = res.data
+      localStorage.setItem('yottapay_token', access_token)
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`
+      setToken(access_token)
+      const meRes = await axios.get('/api/auth/me')
+      setUser(meRes.data)
+    } catch (err) {
+      // If live backend API is unreachable or returned 404 (e.g. static Vercel preview)
+      const isBackendUnreachable =
+        !err.response ||
+        err.response.status === 404 ||
+        err.response.status === 502 ||
+        err.response.status === 503 ||
+        err.code === 'ERR_NETWORK'
+
+      if (isBackendUnreachable && (username === 'admin' || username === 'analyst' || username === 'finance') && (password === 'password123' || !password)) {
+        const demoToken = `demo-${username}-token`
+        const demoUser = {
+          username,
+          full_name: username === 'admin' ? 'Admin User' : username === 'analyst' ? 'Ops Analyst' : 'Finance Manager',
+          email: `${username}@yottapay.ai`,
+          role: username === 'admin' ? 'admin' : username === 'analyst' ? 'ops_analyst' : 'finance_manager',
+        }
+        localStorage.setItem('yottapay_token', demoToken)
+        setToken(demoToken)
+        setUser(demoUser)
+        return
+      }
+      throw err
+    }
   }, [])
 
   const logout = useCallback(() => {

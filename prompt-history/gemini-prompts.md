@@ -231,4 +231,44 @@ test_arithmetic, test_matching, test_api) and professional README.md.
 
 ---
 
+## Entry 006
+
+**Tool**: Antigravity (Google DeepMind)
+**Date/Time**: 2026-11-08 22:50 IST
+**Phase**: PHASE 6 – Frontend Polish, Vercel Deployment & Test Stabilization
+
+**Prompt**:
+```
+Fix frontend dashboard charts and KPI data mapping, configure Vercel SPA routing
+(vercel.json), resolve bcrypt 4.x passlib wrap bug, and implement seamless demo mode
+fallbacks for live reviewer inspection.
+```
+
+**Purpose**: Ensure the dashboard displays properly on both local and hosted Vercel deployments, resolve test runner compatibility, and provide transparent review access.
+
+**Output Summary**:
+- Created root `vercel.json` and `frontend/vercel.json` with SPA routing rewrites to avoid 404s.
+- Created root `package.json` for monorepo detection.
+- Refactored `DashboardPage.jsx` with full data normalization across matching, monthly volume, and exception charts.
+- Updated `StatCard.jsx` to support both JSX elements and component references.
+- Added 1-click demo login buttons to `LoginPage.jsx` for admin, analyst, and finance roles.
+- Enhanced `api.js` and `AuthContext.jsx` with offline synthetic demo fallbacks matching generator scenarios.
+- Refactored `auth.py` to use direct `bcrypt` hashing, eliminating the passlib wrap check incompatibility.
+- Updated test fixtures and model test attributes to align with schema definitions.
+
+**Reviewed**:
+- Verified Vite production build (`npm run build`) generates clean distribution artifacts.
+- Verified all 69 unit tests pass across models, arithmetic, ID generation, and matching engine checks.
+- Verified SPA route rewriting structure for Vercel deployment.
+
+**Modified**:
+- Normalized chart data keys (`matching_status`/`status`, `invoice_count`/`count`, `total_amount`/`amount`, `exception_type`/`type`).
+- Added full color map for all 10 matching outcomes and anomaly types.
+
+**Validated**:
+- `vite build` completed with zero errors.
+- Unit test suite passes with 69 passed tests.
+
+---
+
 *[End of prompt history — all development phases complete]*

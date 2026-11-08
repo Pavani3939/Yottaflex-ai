@@ -7,8 +7,8 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from pydantic import BaseModel
 
 from app.config import get_settings
@@ -16,19 +16,35 @@ from app.config import get_settings
 settings = get_settings()
 router = APIRouter(prefix="/auth")
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+
+def hash_password(password: str) -> str:
+    """Hash a password using bcrypt."""
+    return bcrypt.hashpw(password.encode("utf-8")[:72], bcrypt.gensalt()).decode("utf-8")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a plain password against a bcrypt hash."""
+    try:
+        if isinstance(hashed_password, str):
+            hashed_password = hashed_password.encode("utf-8")
+        return bcrypt.checkpw(plain_password.encode("utf-8")[:72], hashed_password)
+    except Exception:
+        return False
+
 
 # ---------------------------------------------------------------------------
 # Demo users (in-memory — replace with DB in production)
 # ---------------------------------------------------------------------------
+DEMO_PASSWORD_HASH = hash_password("password123")
+
 DEMO_USERS = {
     "admin": {
         "username": "admin",
         "full_name": "Admin User",
         "email": "admin@yottapay.ai",
         "role": "admin",
-        "hashed_password": pwd_context.hash("password123"),
+        "hashed_password": DEMO_PASSWORD_HASH,
         "disabled": False,
     },
     "analyst": {
@@ -36,7 +52,7 @@ DEMO_USERS = {
         "full_name": "Ops Analyst",
         "email": "analyst@yottapay.ai",
         "role": "ops_analyst",
-        "hashed_password": pwd_context.hash("password123"),
+        "hashed_password": DEMO_PASSWORD_HASH,
         "disabled": False,
     },
     "finance": {
@@ -44,7 +60,7 @@ DEMO_USERS = {
         "full_name": "Finance Manager",
         "email": "finance@yottapay.ai",
         "role": "finance_manager",
-        "hashed_password": pwd_context.hash("password123"),
+        "hashed_password": DEMO_PASSWORD_HASH,
         "disabled": False,
     },
 }
@@ -75,10 +91,6 @@ class UserOut(BaseModel):
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-
 def authenticate_user(username: str, password: str) -> Optional[dict]:
     user = DEMO_USERS.get(username)
     if not user:

@@ -103,21 +103,35 @@ export default function LoginPage() {
 
           {/* Demo credentials */}
           <div className="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Demo Credentials</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">1-Click Demo Login</p>
             <div className="space-y-2">
               {[
-                { user: 'admin', pass: 'password123', role: 'Administrator' },
-                { user: 'analyst', pass: 'password123', role: 'Analyst' },
+                { user: 'admin', pass: 'password123', role: 'Administrator (Full Access)' },
+                { user: 'analyst', pass: 'password123', role: 'Operations Analyst' },
+                { user: 'finance', pass: 'password123', role: 'Finance Manager (Approvals)' },
               ].map(c => (
                 <button
                   key={c.user}
                   type="button"
-                  onClick={() => { setUsername(c.user); setPassword(c.pass) }}
+                  onClick={async () => {
+                    setUsername(c.user)
+                    setPassword(c.pass)
+                    setLoading(true)
+                    setError('')
+                    try {
+                      await login(c.user, c.pass)
+                      navigate('/dashboard', { replace: true })
+                    } catch (err) {
+                      setError(err.response?.data?.detail || 'Login failed. Please check backend connection.')
+                    } finally {
+                      setLoading(false)
+                    }
+                  }}
                   className="w-full flex items-center justify-between px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors text-left"
                 >
                   <div>
-                    <span className="text-sm font-medium text-gray-800">{c.user}</span>
-                    <span className="text-xs text-gray-400 ml-2">/ {c.pass}</span>
+                    <span className="text-sm font-semibold text-gray-800">{c.user}</span>
+                    <span className="text-xs text-gray-400 ml-2">({c.pass})</span>
                   </div>
                   <span className="text-xs text-blue-600 font-medium">{c.role}</span>
                 </button>

@@ -1,6 +1,7 @@
+import React from 'react'
 import { TrendingUp, TrendingDown } from 'lucide-react'
 
-export default function StatCard({ icon, label, value, trend, trendPositive, color = 'blue' }) {
+export default function StatCard({ icon: Icon, label, value, trend, trendPositive, color = 'blue' }) {
   const bgColors = {
     blue:   'bg-blue-50 text-blue-600',
     green:  'bg-green-50 text-green-600',
@@ -12,10 +13,12 @@ export default function StatCard({ icon, label, value, trend, trendPositive, col
     teal:   'bg-teal-50 text-teal-600',
   }
 
+  const renderedIcon = typeof Icon === 'function' ? <Icon size={22} /> : Icon
+
   return (
     <div className="card p-5 flex items-start gap-4">
       <div className={`p-3 rounded-xl flex-shrink-0 ${bgColors[color] || bgColors.blue}`}>
-        {icon}
+        {renderedIcon}
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{label}</p>

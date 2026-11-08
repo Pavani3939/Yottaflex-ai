@@ -45,7 +45,8 @@ def mock_db():
 def client():
     """Create a FastAPI TestClient with DB dependency overridden."""
     # Patch database connection check to avoid needing a real DB
-    with patch("app.database.connection.check_database_connection", return_value=True):
+    with patch("app.database.connection.check_database_connection", return_value=True), \
+         patch("app.main.check_database_connection", return_value=True):
         from app.main import app
         from app.database.connection import get_db
         from fastapi.testclient import TestClient

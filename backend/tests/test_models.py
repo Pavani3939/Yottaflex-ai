@@ -31,13 +31,14 @@ class TestVendorModel:
     def test_instantiate(self):
         v = Vendor(
             id="VND-00001",
-            vendor_code="VND00001",
-            vendor_name="Test Vendor",
-            status="active",
+            code="VND00001",
+            name="Test Vendor",
+            email="test@vendor.com",
+            status="ACTIVE",
         )
         assert v.id == "VND-00001"
-        assert v.vendor_name == "Test Vendor"
-        assert v.status == "active"
+        assert v.name == "Test Vendor"
+        assert v.status == "ACTIVE"
 
 
 class TestPurchaseOrderModel:
@@ -45,7 +46,7 @@ class TestPurchaseOrderModel:
         po = PurchaseOrder(
             id="PO-2026-000001",
             vendor_id="VND-00001",
-            po_date=date(2026, 10, 15),
+            order_date=date(2026, 10, 15),
             status="OPEN",
             currency="USD",
             total_amount=Decimal("2500.00"),
@@ -85,11 +86,14 @@ class TestGoodsReceiptLineModel:
         grl = GoodsReceiptLine(
             id="GRNL-2026-000001-01",
             grn_id="GRN-2026-000001",
+            po_line_id="POL-2026-000001-01",
             line_number=1,
             sku="SKU-001",
-            quantity_received=100,
+            received_qty=Decimal("100"),
+            accepted_qty=Decimal("100"),
+            unit_price=Decimal("25.00"),
         )
-        assert grl.quantity_received == 100
+        assert grl.received_qty == Decimal("100")
 
 
 class TestInvoiceModel:
@@ -151,12 +155,13 @@ class TestInvoiceDocumentModel:
         doc = InvoiceDocument(
             id=1,
             invoice_id="INV-VND00001-2026-000001",
-            filename="invoice.pdf",
+            file_name="invoice.pdf",
             file_path="/uploads/invoice.pdf",
-            file_size=1024,
-            content_type="application/pdf",
+            file_type="PDF",
+            file_size_bytes=1024,
+            extraction_method="PYMUPDF",
         )
-        assert doc.filename == "invoice.pdf"
+        assert doc.file_name == "invoice.pdf"
 
 
 class TestApprovalModel:

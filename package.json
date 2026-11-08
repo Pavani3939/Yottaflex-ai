@@ -1,0 +1,11 @@
+{
+  "name": "yottapay-ai-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "YottaPay AI - Intelligent Invoice Processing & Payment Automation Platform",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview"
+  }
+}

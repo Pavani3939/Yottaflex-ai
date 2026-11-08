@@ -105,6 +105,7 @@ class AnalyticsService:
             "total_vendors": total_vendors,
             "active_vendors": active_vendors,
             "total_pos": total_pos,
+            "total_purchase_orders": total_pos,
             "total_invoices": total_invoices,
             "matched_invoices": matched_invoices,
             "exception_invoices": exception_invoices,
@@ -124,7 +125,7 @@ class AnalyticsService:
         Return invoice counts grouped by matching_status.
 
         Returns a list of:
-            [{"matching_status": "<status>", "count": <int>}, ...]
+            [{"matching_status": "<status>", "status": "<status>", "count": <int>}, ...]
         """
         rows = (
             db.query(Invoice.matching_status, func.count(Invoice.id).label("count"))
@@ -132,8 +133,13 @@ class AnalyticsService:
             .all()
         )
         return [
-            {"matching_status": str(row.matching_status), "count": row.count}
+            {
+                "matching_status": str(row.matching_status.value if hasattr(row.matching_status, "value") else row.matching_status),
+                "status": str(row.matching_status.value if hasattr(row.matching_status, "value") else row.matching_status),
+                "count": row.count,
+            }
             for row in rows
+            if row.matching_status is not None
         ]
 
     @staticmethod
@@ -142,7 +148,7 @@ class AnalyticsService:
         Return exception counts grouped by exception_type.
 
         Returns a list of:
-            [{"exception_type": "<type>", "count": <int>}, ...]
+            [{"exception_type": "<type>", "type": "<type>", "count": <int>}, ...]
         """
         rows = (
             db.query(
@@ -153,8 +159,13 @@ class AnalyticsService:
             .all()
         )
         return [
-            {"exception_type": str(row.exception_type), "count": row.count}
+            {
+                "exception_type": str(row.exception_type.value if hasattr(row.exception_type, "value") else row.exception_type),
+                "type": str(row.exception_type.value if hasattr(row.exception_type, "value") else row.exception_type),
+                "count": row.count,
+            }
             for row in rows
+            if row.exception_type is not None
         ]
 
     @staticmethod
@@ -171,8 +182,12 @@ class AnalyticsService:
             .all()
         )
         return [
-            {"status": str(row.status), "count": row.count}
+            {
+                "status": str(row.status.value if hasattr(row.status, "value") else row.status),
+                "count": row.count,
+            }
             for row in rows
+            if row.status is not None
         ]
 
     @staticmethod
@@ -183,7 +198,7 @@ class AnalyticsService:
         Groups by YEAR and MONTH of invoice_date, most recent month last.
 
         Returns a list of:
-            [{"month": "YYYY-MM", "invoice_count": <int>, "total_amount": <float>}, ...]
+            [{"month": "YYYY-MM", "invoice_count": <int>, "count": <int>, "total_amount": <float>, "amount": <float>}, ...]
         """
         # Compute cutoff date (first day of the month N months ago)
         now = datetime.utcnow()
@@ -216,7 +231,9 @@ class AnalyticsService:
             {
                 "month": f"{row.year:04d}-{row.month:02d}",
                 "invoice_count": row.invoice_count or 0,
+                "count": row.invoice_count or 0,
                 "total_amount": float(row.total_amount) if row.total_amount is not None else 0.0,
+                "amount": float(row.total_amount) if row.total_amount is not None else 0.0,
             }
             for row in rows
         ]
